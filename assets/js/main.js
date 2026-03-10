@@ -67,4 +67,121 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(function() { notif.remove(); }, 3000);
     });
 
+    // ============================
+    // 5. WISHLIST FUNCTIONALITY
+    // ============================
+    
+    // Update Header Count
+    function updateWishlistCount() {
+        let wishlist = JSON.parse(localStorage.getItem('sk_wishlist')) || [];
+        const countBadge = document.querySelector('.wishlist-count');
+        if (countBadge) {
+            countBadge.textContent = wishlist.length;
+            countBadge.style.display = wishlist.length > 0 ? 'inline-block' : 'none';
+        }
+    }
+    
+    // Initialize Wishlist Buttons
+    function initWishlistButtons() {
+        let wishlist = JSON.parse(localStorage.getItem('sk_wishlist')) || [];
+        document.querySelectorAll('.wishlist-btn').forEach(btn => {
+            const pid = parseInt(btn.getAttribute('data-product-id'));
+            if (wishlist.includes(pid)) {
+                btn.classList.add('wishlist-active');
+            }
+            
+            // Avoid duplicate listeners by replacing node or checking flag
+            if (!btn.dataset.initialized) {
+                btn.dataset.initialized = 'true';
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    wishlist = JSON.parse(localStorage.getItem('sk_wishlist')) || [];
+                    const p = parseInt(this.getAttribute('data-product-id'));
+                    const idx = wishlist.indexOf(p);
+                    if (idx > -1) {
+                        wishlist.splice(idx, 1);
+                        this.classList.remove('wishlist-active');
+                    } else {
+                        wishlist.push(p);
+                        this.classList.add('wishlist-active');
+                    }
+                    localStorage.setItem('sk_wishlist', JSON.stringify(wishlist));
+                    updateWishlistCount();
+                });
+            }
+        });
+    }
+
+    updateWishlistCount();
+    initWishlistButtons();
+
+    // If on Wishlist Page, load products
+    const wishlistContainer = document.getElementById('sk-wishlist-container');
+    if (wishlistContainer) {
+        let wishlist = JSON.parse(localStorage.getItem('sk_wishlist')) || [];
+        if (wishlist.length === 0) {
+            wishlistContainer.innerHTML = '<div class="no-products-found"><p>😕 Your wishlist is empty.</p><a href="/" class="btn btn-accent">Browse Shop</a></div>';
+        } else {
+            wishlistContainer.innerHTML = '<p>Loading your favorite items...</p>';
+            fetch(sk_store_ajax.ajax_url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'sk_get_wishlist_products',
+                    ids: wishlist.join(',')
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    wishlistContainer.innerHTML = data.data;
+                    initWishlistButtons(); // Re-bind buttons inside the loaded HTML!
+                } else {
+                    wishlistContainer.innerHTML = '<p>Items not found.</p>';
+                }
+            })
+            .catch(err => {
+                console.error('AJAX Error:', err);
+                wishlistContainer.innerHTML = '<p>Error loading items.</p>';
+            });
+        }
+    }
+
+    // ============================
+    // 6. PREMIUM SEARCH OVERLAY
+    // ============================
+    const searchIcon = document.querySelector('.header-search-icon');
+    const searchOverlay = document.getElementById('sk-search-overlay');
+    const searchCloseBtn = document.getElementById('search-close-btn');
+    const searchInput = document.querySelector('.search-field');
+
+    if (searchIcon && searchOverlay) {
+        searchIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            searchOverlay.classList.add('active');
+            // Small delay to allow CSS opacity transition to start before focusing input
+            setTimeout(() => {
+                if (searchInput) searchInput.focus();
+            }, 100);
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        });
+
+        const closeSearch = () => {
+            searchOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        };
+
+        if (searchCloseBtn) {
+            searchCloseBtn.addEventListener('click', closeSearch);
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && searchOverlay.classList.contains('active')) {
+                closeSearch();
+            }
+        });
+    }
+
 });

@@ -96,10 +96,12 @@
         </div>
 
         <?php if ( class_exists('WooCommerce') ) : ?>
-            <?php
-            // WooCommerce featured products
-            echo do_shortcode('[products limit="8" columns="4" orderby="popularity"]');
-            ?>
+            <div class="woocommerce sk-featured-products">
+                <?php
+                // WooCommerce featured products
+                echo do_shortcode('[products limit="8" columns="4" orderby="popularity"]');
+                ?>
+            </div>
         <?php else : ?>
             <p style="text-align:center; color:var(--text-muted);">
                 WooCommerce is not active. Please activate the plugin.

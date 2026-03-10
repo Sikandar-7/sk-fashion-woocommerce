@@ -34,6 +34,12 @@
             <!-- Actions -->
             <div class="header-actions">
                 <?php if ( class_exists('WooCommerce') ) : ?>
+                    <a href="#" class="header-search-icon" aria-label="Search">
+                        🔍
+                    </a>
+                    <a href="<?php echo esc_url(home_url('/wishlist')); ?>" class="header-wishlist">
+                        ❤️ <span class="wishlist-count" style="display:none;">0</span>
+                    </a>
                     <a href="<?php echo wc_get_cart_url(); ?>" class="header-cart">
                         🛒
                         <?php $count = WC()->cart->get_cart_contents_count(); ?>
@@ -48,3 +54,19 @@
         </div>
     </div>
 </header>
+
+<!-- PREMIUM FULLSCREEN SEARCH OVERLAY -->
+<div class="sk-search-overlay" id="sk-search-overlay">
+    <button class="search-close-btn" id="search-close-btn" aria-label="Close Search">✖</button>
+    <div class="search-overlay-content">
+        <h2 class="search-title">What are you looking for?</h2>
+        <form role="search" method="get" class="sk-search-form" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+            <input type="hidden" name="post_type" value="product" />
+            <div class="search-input-wrapper">
+                <input type="search" class="search-field" placeholder="Type your keyword..." value="<?php echo get_search_query(); ?>" name="s" autocomplete="off" required />
+                <button type="submit" class="search-submit-btn">🔍</button>
+            </div>
+            <p class="search-suggestions">Trending: <span>Men's Kurta</span>, <span>Summer Deals</span>, <span>Party Wear</span></p>
+        </form>
+    </div>
+</div>

@@ -83,63 +83,17 @@ get_header(); ?>
 
                 <?php if ( woocommerce_product_loop() ) : ?>
 
-                    <div class="sk-products-grid">
+                    <div class="sk-products-grid woocommerce">
+                        <?php woocommerce_product_loop_start(); ?>
+                        
                         <?php
                         while ( have_posts() ) :
                             the_post();
-                            global $product;
+                            wc_get_template_part( 'content', 'product' );
+                        endwhile;
                         ?>
-                            <div class="sk-product-card">
-
-                                <!-- Image -->
-                                <a href="<?php the_permalink(); ?>" class="sk-product-img-wrap">
-                                    <?php if ( has_post_thumbnail() ) : ?>
-                                        <?php the_post_thumbnail('medium', ['class' => 'sk-product-img']); ?>
-                                    <?php else : ?>
-                                        <div class="sk-product-img-placeholder">👗</div>
-                                    <?php endif; ?>
-
-                                    <!-- Sale Badge -->
-                                    <?php if ( $product->is_on_sale() ) : ?>
-                                        <span class="sale-badge">SALE</span>
-                                    <?php endif; ?>
-
-                                    <!-- Hover Overlay -->
-                                    <div class="sk-product-overlay">
-                                        <a href="<?php the_permalink(); ?>" class="overlay-btn">View Product</a>
-                                    </div>
-                                </a>
-
-                                <!-- Info -->
-                                <div class="sk-product-info">
-                                    <!-- Category -->
-                                    <?php
-                                    $terms = get_the_terms(get_the_ID(), 'product_cat');
-                                    if ($terms && !is_wp_error($terms)) :
-                                        $term = $terms[0];
-                                        if ($term->name !== 'Uncategorized') :
-                                    ?>
-                                        <span class="sk-product-cat"><?php echo esc_html($term->name); ?></span>
-                                    <?php endif; endif; ?>
-
-                                    <h3 class="sk-product-name">
-                                        <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                                    </h3>
-
-                                    <div class="sk-product-footer">
-                                        <div class="sk-product-price">
-                                            <?php echo $product->get_price_html(); ?>
-                                        </div>
-                                        <button class="sk-add-to-cart"
-                                                data-product-id="<?php echo get_the_ID(); ?>"
-                                                data-url="<?php echo esc_url($product->add_to_cart_url()); ?>">
-                                            🛒 Add
-                                        </button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        <?php endwhile; ?>
+                        
+                        <?php woocommerce_product_loop_end(); ?>
                     </div>
 
                     <!-- Pagination -->
